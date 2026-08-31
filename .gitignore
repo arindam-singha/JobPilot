@@ -1,0 +1,30 @@
+# Python bytecode and cache files
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+.venv-1/
+venv/
+
+# OS and editor artifacts
+.DS_Store
+*.swp
+*.swo
+
+# Environment files
+.env
+!.env.example
+
+# Docker volumes and build artifacts
+*.log
+
+# Alembic generated revision files are intentionally tracked
+# but local runtime artifact folders should stay out
