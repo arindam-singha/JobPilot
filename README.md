@@ -2,7 +2,7 @@
 
 JobPilot is a human-in-the-loop, Agentic RAG-based job application assistant.
 
-This repository currently contains the Phase 1 development foundation only. It includes a clean FastAPI application structure, SQLAlchemy 2 async PostgreSQL integration, Alembic migration scaffolding, Docker Compose orchestration, and the base test/linting configuration. The future AI/RAG/job matching/CV-cover letter phases are intentionally not implemented yet.
+This repository currently contains the Phase 1 development foundation only. It includes a clean FastAPI application structure, SQLAlchemy 2 async PostgreSQL integration, Alembic migration scaffolding, Docker Compose orchestration, and the base test/linting configuration.
 
 ## Prerequisites
 
