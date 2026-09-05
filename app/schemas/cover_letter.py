@@ -92,6 +92,10 @@ class TailoredCoverLetterDraft(BaseModel):
         }
         if unknown:
             raise ValueError("cover-letter paragraphs reference unknown evidence")
+        expected_sign_off = f"Sincerely,\n{self.header.full_name}"
+
+        if self.sign_off != expected_sign_off:
+            raise ValueError("cover-letter sign-off must use the candidate profile name")
         return self
 
     model_config = ConfigDict(extra="forbid")

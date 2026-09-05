@@ -28,6 +28,10 @@ Rules:
 - Keep the letter concise: one opening, one to three body paragraphs, and one closing.
 - Do not use markdown, tables, lists, placeholders, or bracketed text.
 - Return JSON conforming exactly to the supplied schema.
+- The candidate's name is supplied as candidate_name.
+- Never invent or substitute a person's name.
+- Do not include a person's name inside opening, body, or closing paragraphs.
+- The generated sign_off is ignored by the application.
 """.strip()
 
 

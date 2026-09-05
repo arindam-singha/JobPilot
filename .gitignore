@@ -26,5 +26,7 @@ venv/
 # Docker volumes and build artifacts
 *.log
 
+*.md
+
 # Alembic generated revision files are intentionally tracked
 # but local runtime artifact folders should stay out

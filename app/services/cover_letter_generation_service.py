@@ -90,6 +90,19 @@ class CoverLetterGenerationService:
         )
         try:
             content = await self.provider.generate_cover_letter(context)
+            # draft = TailoredCoverLetterDraft(
+            #     job_id=job.id,
+            #     profile_id=profile.id,
+            #     header=header,
+            #     job_title=job.title,
+            #     company=job.company,
+            #     evidence_catalog=grounding.selected_evidence,
+            #     generator_provider=self.provider.provider_name,
+            #     generator_model=self.provider.model_name,
+            #     **content.model_dump(),
+            # )
+            content_data = content.model_dump(exclude={"sign_off"})
+
             draft = TailoredCoverLetterDraft(
                 job_id=job.id,
                 profile_id=profile.id,
@@ -99,7 +112,8 @@ class CoverLetterGenerationService:
                 evidence_catalog=grounding.selected_evidence,
                 generator_provider=self.provider.provider_name,
                 generator_model=self.provider.model_name,
-                **content.model_dump(),
+                sign_off=f"Sincerely,\n{profile.full_name}",
+                **content_data,
             )
             self.validator.validate(draft)
             return draft

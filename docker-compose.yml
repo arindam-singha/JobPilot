@@ -26,6 +26,13 @@ services:
     image: ollama/ollama:latest
     container_name: jobpilot-ollama
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     volumes:
       - ollama_data:/root/.ollama
     healthcheck:
@@ -45,7 +52,7 @@ services:
         condition: service_healthy
     environment:
       OLLAMA_HOST: http://ollama:11434
-      OLLAMA_MODEL: ${OLLAMA_EVIDENCE_MODEL:-qwen2.5:7b}
+      OLLAMA_MODEL: qwen3:4b-instruct-2507-q4_K_M
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
@@ -73,11 +80,15 @@ services:
       APP_ENV: ${APP_ENV:-development}
       EVIDENCE_LLM_PROVIDER: ${EVIDENCE_LLM_PROVIDER:-ollama}
       OLLAMA_BASE_URL: http://ollama:11434
-      OLLAMA_EVIDENCE_MODEL: ${OLLAMA_EVIDENCE_MODEL:-qwen2.5:7b}
+      # Explicit values override older model settings in .env.
+      OLLAMA_EVIDENCE_MODEL: qwen3:4b-instruct-2507-q4_K_M
+      OLLAMA_PROFILE_MODEL: qwen3:4b-instruct-2507-q4_K_M
+      OLLAMA_JOB_REQUIREMENTS_MODEL: qwen3:4b-instruct-2507-q4_K_M
+      OLLAMA_COVER_LETTER_MODEL: qwen3:4b-instruct-2507-q4_K_M
       OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-300}
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
       RESUME_LLM_PROVIDER: ${RESUME_LLM_PROVIDER:-ollama}
-      OLLAMA_RESUME_MODEL: ${OLLAMA_RESUME_MODEL:-qwen2.5:7b}
+      OLLAMA_RESUME_MODEL: qwen3:4b-instruct-2507-q4_K_M
       OLLAMA_RESUME_TIMEOUT_SECONDS: ${OLLAMA_RESUME_TIMEOUT_SECONDS:-300}
     depends_on:
       postgres:
@@ -90,6 +101,7 @@ services:
       - "8500:8000"
     volumes:
       - .:/app
+      # - /app/.venv
     command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:
       test:
@@ -121,6 +133,7 @@ services:
       - "8501:8501"
     volumes:
       - .:/app
+      # - /app/.venv
     command: >-
       uv run streamlit run ui/app.py
       --server.address=0.0.0.0

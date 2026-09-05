@@ -1,11 +1,157 @@
 from __future__ import annotations
 
 import base64
+import copy
+import json
 import os
 from typing import Any
 
 import httpx
 import streamlit as st
+
+# Fields mirror the existing API schemas. Empty strings are normalized before validation.
+REVIEW_FIELDS = {
+    "experiences": [
+        "company",
+        "role",
+        "location",
+        "start_date",
+        "end_date",
+        "is_current",
+        "description",
+        "achievements",
+    ],
+    "skills": ["name", "category", "proficiency", "years_of_experience"],
+    "education": [
+        "institution",
+        "degree",
+        "field_of_study",
+        "location",
+        "start_date",
+        "end_date",
+        "description",
+    ],
+    "projects": ["name", "description", "technologies", "achievements", "project_url"],
+    "publications": ["title", "venue", "publication_date", "url", "description"],
+    "certifications": [
+        "name",
+        "issuing_organization",
+        "issue_date",
+        "expiry_date",
+        "credential_id",
+        "credential_url",
+    ],
+    "achievements": ["title", "description", "date"],
+}
+
+
+def _review_profile(profile_id: str) -> None:
+    draft = st.session_state.get(f"review:{profile_id}")
+    if not draft:
+        return
+    prefix = f"{profile_id}:{draft['document_id']}:{draft['base_revision']}"
+    st.subheader("Review extracted information")
+    st.caption(
+        "Nothing is saved until you confirm. Add rows with +; select rows to delete them. "
+        "For month/year-only dates, keep the original wording in Description; "
+        "date columns accept complete YYYY-MM-DD dates only."
+    )
+    for warning in draft["data"].get("warnings", []):
+        st.warning(warning)
+    with st.expander("Original extracted resume text"):
+        st.text(draft.get("source_text", ""))
+    edited = copy.deepcopy(draft)
+    with st.form(f"review-form:{prefix}"):
+        with st.expander("Personal details and summary", expanded=True):
+            for field, value in draft["data"]["profile"].items():
+                if field == "total_experience_years":
+                    entered = st.text_input(
+                        "Total experience years (optional)",
+                        value="" if value is None else str(value),
+                    )
+                    edited["data"]["profile"][field] = entered or None
+                elif field in ("professional_summary", "target_roles"):
+                    edited["data"]["profile"][field] = (
+                        st.text_area(
+                            field.replace("_", " ").title(),
+                            value=value or "",
+                            height=150,
+                        )
+                        or None
+                    )
+                else:
+                    edited["data"]["profile"][field] = (
+                        st.text_input(field.replace("_", " ").title(), value=value or "") or None
+                    )
+        for section, fields in REVIEW_FIELDS.items():
+            with st.expander(f"{section.title()} ({len(draft['data'][section])})", expanded=True):
+                # A typed empty DataFrame keeps add-row controls available for empty sections.
+                import pandas as pd
+
+                rows = draft["data"][section]
+                frame = pd.DataFrame(rows, columns=["id", *fields, "source_quote"])
+                for field in frame.columns:
+                    if field == "is_current":
+                        frame[field] = frame[field].fillna(False).astype(bool)
+                    else:
+                        frame[field] = frame[field].map(lambda v: "" if pd.isna(v) else str(v))
+                result = st.data_editor(
+                    frame,
+                    num_rows="dynamic",
+                    hide_index=True,
+                    use_container_width=True,
+                    disabled=["id", "source_quote"],
+                    column_config={
+                        "id": None,
+                        "source_quote": st.column_config.TextColumn("Source excerpt"),
+                    },
+                    key=f"rows:{prefix}:{section}",
+                )
+                cleaned = []
+                for row in result.to_dict("records"):
+                    if not any(
+                        v not in (None, "", False)
+                        for k, v in row.items()
+                        if k not in ("id", "source_quote")
+                    ):
+                        continue
+                    row = {k: (None if pd.isna(v) or v == "" else v) for k, v in row.items()}
+                    row["source_quote"] = row.get("source_quote") or ""
+                    if "is_current" in fields:
+                        row["is_current"] = bool(row.get("is_current"))
+                    cleaned.append(row)
+                edited["data"][section] = cleaned
+        approved = st.checkbox(
+            "I reviewed this profile. Save these sections, including my deletions, and replace "
+            "previous automatically generated evidence. Manually entered evidence is retained."
+        )
+        submitted = st.form_submit_button("Confirm and save reviewed profile", type="primary")
+    st.download_button(
+        "Download extraction draft (before edits)",
+        json.dumps(draft, indent=2),
+        file_name="candidate-profile-review.json",
+        mime="application/json",
+    )
+    if submitted:
+        if not approved:
+            st.error("Please confirm the review before saving.")
+            return
+        try:
+            edited["confirmed"] = True
+            _request(
+                "POST",
+                f"/api/v1/candidate-profile/{profile_id}/documents/"
+                f"{draft['document_id']}/confirm-review",
+                json=edited,
+            )
+            del st.session_state[f"review:{profile_id}"]
+            st.session_state[f"saved-review:{profile_id}"] = True
+            st.session_state.pop(f"ready:{profile_id}", None)
+            st.success("Reviewed profile saved. Prepare it for matching below.")
+            st.rerun()
+        except RuntimeError as exc:
+            st.error(str(exc))
+
 
 API_URL = os.getenv("JOBPILOT_API_URL", "http://jobpilot-api:8000").rstrip("/")
 TIMEOUT = httpx.Timeout(3600.0, connect=10.0)
@@ -79,31 +225,66 @@ def _profile_setup() -> None:
 
     st.caption(f"Active profile: {profile_id}")
     uploaded = st.file_uploader("Upload master resume", type=["pdf", "docx"])
-    if uploaded and st.button("Upload and prepare profile", type="primary"):
+    if uploaded and st.button("Upload and extract for review", type="primary"):
         content_type = (
             "application/pdf"
             if uploaded.name.casefold().endswith(".pdf")
             else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
         try:
-            with st.status("Preparing candidate profile...", expanded=True) as status_box:
+            with st.status("Extracting candidate profile...", expanded=True) as status_box:
                 st.write("Uploading and extracting resume text")
                 document = _request(
                     "POST",
                     f"/api/v1/candidate-profile/{profile_id}/documents/upload",
                     files={"file": (uploaded.name, uploaded.getvalue(), content_type)},
                 )
-                st.write("Generating grounded candidate evidence")
-                prepared = _request(
+                st.session_state[f"document:{profile_id}"] = document["id"]
+                st.write("Extracting employment, education, skills and other sections")
+                draft = _request(
                     "POST",
-                    f"/api/v1/candidate-profile/{profile_id}/documents/"
-                    f"{document['id']}/prepare",
+                    f"/api/v1/candidate-profile/{profile_id}/documents/{document['id']}/review",
                 )
-                status_box.update(label="Candidate profile ready", state="complete")
-            st.success(
-                f"Prepared {prepared['evidence_records']} evidence records; "
-                f"{prepared['embedded_records']} embedded."
+                st.session_state[f"review:{profile_id}"] = draft
+                st.session_state.pop(f"ready:{profile_id}", None)
+                status_box.update(label="Extraction complete — review required", state="complete")
+        except RuntimeError as exc:
+            st.error(str(exc))
+
+    document_id = st.text_input(
+        "Resume document ID (reuse an existing upload)",
+        value=st.session_state.get(f"document:{profile_id}", ""),
+        key=f"document-input:{profile_id}",
+    )
+    if document_id and st.button("Extract/reload review from existing document"):
+        try:
+            st.session_state[f"review:{profile_id}"] = _request(
+                "POST",
+                f"/api/v1/candidate-profile/{profile_id}/documents/{document_id}/review",
             )
+            st.session_state.pop(f"ready:{profile_id}", None)
+            st.rerun()
+        except RuntimeError as exc:
+            st.error(str(exc))
+    if document_id and st.button("Edit saved profile without re-extracting"):
+        try:
+            st.session_state[f"review:{profile_id}"] = _request(
+                "GET",
+                f"/api/v1/candidate-profile/{profile_id}/documents/{document_id}/review",
+            )
+            st.session_state.pop(f"ready:{profile_id}", None)
+            st.rerun()
+        except RuntimeError as exc:
+            st.error(str(exc))
+    _review_profile(profile_id)
+    if st.button("Prepare confirmed profile for matching"):
+        try:
+            prepared = _request("POST", f"/api/v1/candidate-profile/{profile_id}/prepare-reviewed")
+            st.session_state[f"ready:{profile_id}"] = prepared["ready"]
+            if prepared["ready"]:
+                st.success("Confirmed profile is ready for matching.")
+            else:
+                st.warning("Profile saved, but embeddings are not ready. Retry preparation.")
         except RuntimeError as exc:
             st.error(str(exc))
 
@@ -113,6 +294,12 @@ def _application() -> None:
     profile_id = st.session_state.get("profile_id")
     if not profile_id:
         st.warning("Select a candidate profile first.")
+        return
+
+    if st.session_state.get(f"review:{profile_id}") or not st.session_state.get(
+        f"ready:{profile_id}"
+    ):
+        st.info("Confirm your profile review and prepare it for matching in Candidate setup first.")
         return
 
     with st.form("application"):

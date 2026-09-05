@@ -35,13 +35,19 @@ _SECTION_HEADINGS: dict[str, str] = {
     "projects": "projects",
     "professional projects": "projects",
     "personal projects": "projects",
+    "selected generative ai & machine learning projects": "projects",
+    "selected projects": "projects",
     "publications": "publications",
     "research publications": "publications",
+    "selected publications": "publications",
     "certifications": "certifications",
     "certificates": "certifications",
     "achievements": "achievements",
     "awards": "awards",
     "awards and achievements": "achievements",
+    "awards & recognition": "achievements",
+    "awards and recognition": "achievements",
+    "additional information": "additional_information",
 }
 
 

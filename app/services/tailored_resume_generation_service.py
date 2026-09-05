@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.embeddings.embedding_provider import EmbeddingProvider
 from app.llm.resume_provider import (
@@ -146,13 +147,40 @@ class TailoredResumeGenerationService:
 
         return job
 
+    # async def _get_profile(
+    #     self,
+    #     profile_id: UUID,
+    # ) -> CandidateProfile:
+    #     result = await self.session.execute(
+    #         select(CandidateProfile).where(
+    #             CandidateProfile.id == profile_id
+    #         )
+    #     )
+
+    #     profile = result.scalar_one_or_none()
+
+    #     if profile is None:
+    #         raise TailoredResumeProfileNotFoundError(
+    #             "Candidate profile not found"
+    #         )
+
+    #     return profile
+
     async def _get_profile(
         self,
         profile_id: UUID,
     ) -> CandidateProfile:
         result = await self.session.execute(
-            select(CandidateProfile).where(
-                CandidateProfile.id == profile_id
+            select(CandidateProfile)
+            .where(CandidateProfile.id == profile_id)
+            .options(
+                selectinload(CandidateProfile.experiences),
+                selectinload(CandidateProfile.skills),
+                selectinload(CandidateProfile.educations),
+                selectinload(CandidateProfile.projects),
+                selectinload(CandidateProfile.publications),
+                selectinload(CandidateProfile.certifications),
+                selectinload(CandidateProfile.achievements),
             )
         )
 
