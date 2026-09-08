@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import date as date_type, datetime as datetime_type
-from typing import Optional
+from datetime import date as date_type
+from datetime import datetime as datetime_type
 from uuid import UUID
 
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
-def _strip_optional_string(value: Optional[str]) -> Optional[str]:
+def _strip_optional_string(value: str | None) -> str | None:
     if value is None:
         return None
 
@@ -24,15 +24,15 @@ def _validate_non_empty_string(value: str, field_name: str) -> str:
 
 class CandidateProfileCreate(BaseModel):
     full_name: str = Field(..., min_length=1)
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    location: Optional[str] = None
-    linkedin_url: Optional[AnyUrl] = None
-    github_url: Optional[AnyUrl] = None
-    portfolio_url: Optional[AnyUrl] = None
-    professional_summary: Optional[str] = None
-    target_roles: Optional[str] = None
-    total_experience_years: Optional[float] = None
+    email: str | None = None
+    phone: str | None = None
+    location: str | None = None
+    linkedin_url: AnyUrl | None = None
+    github_url: AnyUrl | None = None
+    portfolio_url: AnyUrl | None = None
+    professional_summary: str | None = None
+    target_roles: str | None = None
+    total_experience_years: float | None = None
 
     @field_validator("full_name")
     @classmethod
@@ -47,32 +47,32 @@ class CandidateProfileCreate(BaseModel):
         "target_roles",
     )
     @classmethod
-    def normalize_optional_strings(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_strings(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
     @field_validator("total_experience_years")
     @classmethod
-    def validate_total_experience_years(cls, value: Optional[float]) -> Optional[float]:
+    def validate_total_experience_years(cls, value: float | None) -> float | None:
         if value is not None and value < 0:
             raise ValueError("total_experience_years must be greater than or equal to 0")
         return value
 
 
 class CandidateProfileUpdate(BaseModel):
-    full_name: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    location: Optional[str] = None
-    linkedin_url: Optional[AnyUrl] = None
-    github_url: Optional[AnyUrl] = None
-    portfolio_url: Optional[AnyUrl] = None
-    professional_summary: Optional[str] = None
-    target_roles: Optional[str] = None
-    total_experience_years: Optional[float] = None
+    full_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    location: str | None = None
+    linkedin_url: AnyUrl | None = None
+    github_url: AnyUrl | None = None
+    portfolio_url: AnyUrl | None = None
+    professional_summary: str | None = None
+    target_roles: str | None = None
+    total_experience_years: float | None = None
 
     @field_validator("full_name")
     @classmethod
-    def validate_full_name(cls, value: Optional[str]) -> Optional[str]:
+    def validate_full_name(cls, value: str | None) -> str | None:
         if value is None:
             return None
         return _validate_non_empty_string(value, "full_name")
@@ -85,12 +85,12 @@ class CandidateProfileUpdate(BaseModel):
         "target_roles",
     )
     @classmethod
-    def normalize_optional_strings(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_strings(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
     @field_validator("total_experience_years")
     @classmethod
-    def validate_total_experience_years(cls, value: Optional[float]) -> Optional[float]:
+    def validate_total_experience_years(cls, value: float | None) -> float | None:
         if value is not None and value < 0:
             raise ValueError("total_experience_years must be greater than or equal to 0")
         return value
@@ -99,12 +99,12 @@ class CandidateProfileUpdate(BaseModel):
 class CandidateExperienceCreate(BaseModel):
     company: str = Field(..., min_length=1)
     role: str = Field(..., min_length=1)
-    location: Optional[str] = None
-    start_date: Optional[date_type] = None
-    end_date: Optional[date_type] = None
+    location: str | None = None
+    start_date: date_type | None = None
+    end_date: date_type | None = None
     is_current: bool = False
-    description: Optional[str] = None
-    achievements: Optional[str] = None
+    description: str | None = None
+    achievements: str | None = None
 
     @field_validator("company")
     @classmethod
@@ -118,11 +118,11 @@ class CandidateExperienceCreate(BaseModel):
 
     @field_validator("location", "description", "achievements")
     @classmethod
-    def normalize_optional_strings(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_strings(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
     @model_validator(mode="after")
-    def validate_date_ranges(self) -> "CandidateExperienceCreate":
+    def validate_date_ranges(self) -> CandidateExperienceCreate:
         if self.start_date is not None and self.end_date is not None and self.end_date < self.start_date:
             raise ValueError("end_date must not be earlier than start_date")
         if self.is_current and self.end_date is not None:
@@ -135,21 +135,21 @@ class CandidateExperienceRead(BaseModel):
     profile_id: UUID
     company: str
     role: str
-    location: Optional[str] = None
-    start_date: Optional[date_type] = None
-    end_date: Optional[date_type] = None
+    location: str | None = None
+    start_date: date_type | None = None
+    end_date: date_type | None = None
     is_current: bool = False
-    description: Optional[str] = None
-    achievements: Optional[str] = None
+    description: str | None = None
+    achievements: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class CandidateSkillCreate(BaseModel):
     name: str = Field(..., min_length=1)
-    category: Optional[str] = None
-    proficiency: Optional[str] = None
-    years_of_experience: Optional[float] = None
+    category: str | None = None
+    proficiency: str | None = None
+    years_of_experience: float | None = None
 
     @field_validator("name")
     @classmethod
@@ -158,12 +158,12 @@ class CandidateSkillCreate(BaseModel):
 
     @field_validator("category", "proficiency")
     @classmethod
-    def normalize_optional_strings(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_strings(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
     @field_validator("years_of_experience")
     @classmethod
-    def validate_years_of_experience(cls, value: Optional[float]) -> Optional[float]:
+    def validate_years_of_experience(cls, value: float | None) -> float | None:
         if value is not None and value < 0:
             raise ValueError("years_of_experience must be greater than or equal to 0")
         return value
@@ -173,9 +173,9 @@ class CandidateSkillRead(BaseModel):
     id: UUID
     profile_id: UUID
     name: str
-    category: Optional[str] = None
-    proficiency: Optional[str] = None
-    years_of_experience: Optional[float] = None
+    category: str | None = None
+    proficiency: str | None = None
+    years_of_experience: float | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -183,11 +183,11 @@ class CandidateSkillRead(BaseModel):
 class CandidateEducationCreate(BaseModel):
     institution: str = Field(..., min_length=1)
     degree: str = Field(..., min_length=1)
-    field_of_study: Optional[str] = None
-    location: Optional[str] = None
-    start_date: Optional[date_type] = None
-    end_date: Optional[date_type] = None
-    description: Optional[str] = None
+    field_of_study: str | None = None
+    location: str | None = None
+    start_date: date_type | None = None
+    end_date: date_type | None = None
+    description: str | None = None
 
     @field_validator("institution")
     @classmethod
@@ -201,11 +201,11 @@ class CandidateEducationCreate(BaseModel):
 
     @field_validator("field_of_study", "location", "description")
     @classmethod
-    def normalize_optional_strings(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_strings(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
     @model_validator(mode="after")
-    def validate_date_ranges(self) -> "CandidateEducationCreate":
+    def validate_date_ranges(self) -> CandidateEducationCreate:
         if self.start_date is not None and self.end_date is not None and self.end_date < self.start_date:
             raise ValueError("end_date must not be earlier than start_date")
         return self
@@ -216,21 +216,21 @@ class CandidateEducationRead(BaseModel):
     profile_id: UUID
     institution: str
     degree: str
-    field_of_study: Optional[str] = None
-    location: Optional[str] = None
-    start_date: Optional[date_type] = None
-    end_date: Optional[date_type] = None
-    description: Optional[str] = None
+    field_of_study: str | None = None
+    location: str | None = None
+    start_date: date_type | None = None
+    end_date: date_type | None = None
+    description: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class CandidateProjectCreate(BaseModel):
     name: str = Field(..., min_length=1)
-    description: Optional[str] = None
-    technologies: Optional[str] = None
-    achievements: Optional[str] = None
-    project_url: Optional[AnyUrl] = None
+    description: str | None = None
+    technologies: str | None = None
+    achievements: str | None = None
+    project_url: AnyUrl | None = None
 
     @field_validator("name")
     @classmethod
@@ -239,7 +239,7 @@ class CandidateProjectCreate(BaseModel):
 
     @field_validator("description", "technologies", "achievements")
     @classmethod
-    def normalize_optional_strings(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_strings(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
 
@@ -247,20 +247,20 @@ class CandidateProjectRead(BaseModel):
     id: UUID
     profile_id: UUID
     name: str
-    description: Optional[str] = None
-    technologies: Optional[str] = None
-    achievements: Optional[str] = None
-    project_url: Optional[AnyUrl] = None
+    description: str | None = None
+    technologies: str | None = None
+    achievements: str | None = None
+    project_url: AnyUrl | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class CandidatePublicationCreate(BaseModel):
     title: str = Field(..., min_length=1)
-    venue: Optional[str] = None
-    publication_date: Optional[date_type] = None
-    url: Optional[AnyUrl] = None
-    description: Optional[str] = None
+    venue: str | None = None
+    publication_date: date_type | None = None
+    url: AnyUrl | None = None
+    description: str | None = None
 
     @field_validator("title")
     @classmethod
@@ -269,7 +269,7 @@ class CandidatePublicationCreate(BaseModel):
 
     @field_validator("venue", "description")
     @classmethod
-    def normalize_optional_strings(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_strings(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
 
@@ -277,21 +277,21 @@ class CandidatePublicationRead(BaseModel):
     id: UUID
     profile_id: UUID
     title: str
-    venue: Optional[str] = None
-    publication_date: Optional[date_type] = None
-    url: Optional[AnyUrl] = None
-    description: Optional[str] = None
+    venue: str | None = None
+    publication_date: date_type | None = None
+    url: AnyUrl | None = None
+    description: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class CandidateCertificationCreate(BaseModel):
     name: str = Field(..., min_length=1)
-    issuing_organization: Optional[str] = None
-    issue_date: Optional[date_type] = None
-    expiry_date: Optional[date_type] = None
-    credential_id: Optional[str] = None
-    credential_url: Optional[AnyUrl] = None
+    issuing_organization: str | None = None
+    issue_date: date_type | None = None
+    expiry_date: date_type | None = None
+    credential_id: str | None = None
+    credential_url: AnyUrl | None = None
 
     @field_validator("name")
     @classmethod
@@ -300,11 +300,11 @@ class CandidateCertificationCreate(BaseModel):
 
     @field_validator("issuing_organization", "credential_id")
     @classmethod
-    def normalize_optional_strings(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_strings(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
     @model_validator(mode="after")
-    def validate_date_ranges(self) -> "CandidateCertificationCreate":
+    def validate_date_ranges(self) -> CandidateCertificationCreate:
         if self.issue_date is not None and self.expiry_date is not None and self.expiry_date < self.issue_date:
             raise ValueError("expiry_date must not be earlier than issue_date")
         return self
@@ -314,19 +314,19 @@ class CandidateCertificationRead(BaseModel):
     id: UUID
     profile_id: UUID
     name: str
-    issuing_organization: Optional[str] = None
-    issue_date: Optional[date_type] = None
-    expiry_date: Optional[date_type] = None
-    credential_id: Optional[str] = None
-    credential_url: Optional[AnyUrl] = None
+    issuing_organization: str | None = None
+    issue_date: date_type | None = None
+    expiry_date: date_type | None = None
+    credential_id: str | None = None
+    credential_url: AnyUrl | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class CandidateAchievementCreate(BaseModel):
     title: str = Field(..., min_length=1)
-    description: Optional[str] = None
-    date: Optional[date_type] = None
+    description: str | None = None
+    date: date_type | None = None
 
     @field_validator("title")
     @classmethod
@@ -335,7 +335,7 @@ class CandidateAchievementCreate(BaseModel):
 
     @field_validator("description")
     @classmethod
-    def normalize_optional_string(cls, value: Optional[str]) -> Optional[str]:
+    def normalize_optional_string(cls, value: str | None) -> str | None:
         return _strip_optional_string(value)
 
 
@@ -343,8 +343,8 @@ class CandidateAchievementRead(BaseModel):
     id: UUID
     profile_id: UUID
     title: str
-    description: Optional[str] = None
-    date: Optional[date_type] = None
+    description: str | None = None
+    date: date_type | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -352,15 +352,15 @@ class CandidateAchievementRead(BaseModel):
 class CandidateProfileRead(BaseModel):
     id: UUID
     full_name: str
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    location: Optional[str] = None
-    linkedin_url: Optional[AnyUrl] = None
-    github_url: Optional[AnyUrl] = None
-    portfolio_url: Optional[AnyUrl] = None
-    professional_summary: Optional[str] = None
-    target_roles: Optional[str] = None
-    total_experience_years: Optional[float] = None
+    email: str | None = None
+    phone: str | None = None
+    location: str | None = None
+    linkedin_url: AnyUrl | None = None
+    github_url: AnyUrl | None = None
+    portfolio_url: AnyUrl | None = None
+    professional_summary: str | None = None
+    target_roles: str | None = None
+    total_experience_years: float | None = None
     created_at: datetime_type
     updated_at: datetime_type
     experiences: list[CandidateExperienceRead] = Field(default_factory=list)

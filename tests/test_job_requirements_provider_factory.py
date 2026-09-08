@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from app.llm.fake_job_requirements_provider import (
     FakeJobRequirementsProvider,
 )

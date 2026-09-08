@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 
 import pytest
-from sqlalchemy import select
-
 from app.cv.models import TextChunk
 from app.llm.fake_evidence_provider import (
     FakeEvidenceExtractionProvider,
@@ -31,6 +29,7 @@ from app.services.llm_evidence_extraction_service import (
     LlmEvidenceExtractionService,
     LlmEvidenceProviderFailureError,
 )
+from sqlalchemy import select
 
 
 async def _create_profile(

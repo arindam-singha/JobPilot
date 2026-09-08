@@ -1,8 +1,7 @@
 import pytest
+from app.models import CandidateExperience, CandidateProfile, CandidateSkill
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-
-from app.models import CandidateProfile, CandidateExperience, CandidateSkill
 
 
 @pytest.mark.asyncio

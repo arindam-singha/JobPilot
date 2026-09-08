@@ -3,7 +3,6 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
-
 from app.models.candidate_evidence import CandidateEvidence
 from app.models.candidate_profile import CandidateProfile
 from app.models.job import Job

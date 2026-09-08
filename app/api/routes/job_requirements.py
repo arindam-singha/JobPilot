@@ -17,7 +17,6 @@ from app.services.job_requirements_extraction_service import (
     JobRequirementsProviderFailureError,
 )
 
-
 router = APIRouter(
     prefix="/api/v1/jobs",
     tags=["job-requirements"],

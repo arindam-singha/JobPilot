@@ -3,20 +3,17 @@ from uuid import uuid4
 
 import pytest
 import pytest_asyncio
-from docx import Document
-from pypdf import PdfWriter
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.candidate_document import CandidateDocument
 from app.models.candidate_profile import CandidateProfile
 from app.schemas.candidate_profile import CandidateProfileCreate
 from app.services.candidate_document_service import CandidateDocumentService
 from app.services.document_ingestion_service import (
-    DocumentIngestionError,
     DocumentIngestionService,
     DocumentIngestionValidationError,
 )
 from app.services.document_storage_service import DocumentStorageService
+from docx import Document
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest_asyncio.fixture

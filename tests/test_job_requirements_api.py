@@ -3,14 +3,13 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import select
-
 from app.llm.fake_job_requirements_provider import (
     FakeJobRequirementsProvider,
 )
 from app.models.job import Job
 from app.models.job_requirements import JobRequirements
 from app.schemas.job_requirements import JobRequirementsData
+from sqlalchemy import select
 
 
 async def _create_job(

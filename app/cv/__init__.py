@@ -1,6 +1,6 @@
 from app.cv.extraction import (
-    DOCXTextExtractor,
     DocumentTextExtractor,
+    DOCXTextExtractor,
     ExtractedText,
     PDFTextExtractor,
     extract_document_text,

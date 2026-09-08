@@ -26,6 +26,9 @@ from app.services.job_requirements_extraction_service import JobRequirementsExtr
 from app.services.tailored_resume_generation_service import TailoredResumeGenerationService
 from app.services.tailored_resume_markdown_renderer import TailoredResumeMarkdownRenderer
 from app.services.tailored_resume_pdf_renderer import TailoredResumePdfRenderer
+from app.services.tailored_resume_html_renderer import (
+    TailoredResumeHtmlRenderer,
+)
 
 router = APIRouter(prefix="/api/v1/application-packages", tags=["application-packages"])
 
@@ -72,7 +75,8 @@ async def generate_application_package(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc) or exc.__class__.__name__,
         ) from exc
-
+    
+    resume_html = TailoredResumeHtmlRenderer().render(resume)
     resume_markdown = TailoredResumeMarkdownRenderer().render(resume)
     cover_letter_markdown = CoverLetterMarkdownRenderer().render(cover_letter)
     resume_pdf = TailoredResumePdfRenderer().render(resume)
@@ -83,8 +87,11 @@ async def generate_application_package(
         match=match,
         resume=resume,
         cover_letter=cover_letter,
+        resume_html=resume_html,
         resume_markdown=resume_markdown,
         cover_letter_markdown=cover_letter_markdown,
         resume_pdf_base64=base64.b64encode(resume_pdf).decode("ascii"),
-        cover_letter_pdf_base64=base64.b64encode(cover_letter_pdf).decode("ascii"),
+        cover_letter_pdf_base64=base64.b64encode(
+            cover_letter_pdf
+        ).decode("ascii"),
     )

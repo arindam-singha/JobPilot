@@ -135,6 +135,88 @@ class TailoredResumeContent(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+class ResumeSkillGroup(BaseModel):
+    """Verified skills grouped for ATS-friendly rendering."""
+
+    category: str = Field(..., min_length=1)
+    skills: list[str] = Field(min_length=1)
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ResumeExperienceEntry(BaseModel):
+    """Professional experience copied from the confirmed profile."""
+
+    role: str = Field(..., min_length=1)
+    company: str = Field(..., min_length=1)
+    location: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    is_current: bool = False
+    bullets: list[str] = Field(default_factory=list)
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ResumeProjectEntry(BaseModel):
+    """Project copied from the confirmed profile."""
+
+    name: str = Field(..., min_length=1)
+    technologies: str | None = None
+    description: str | None = None
+    achievements: str | None = None
+    project_url: str | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ResumeEducationEntry(BaseModel):
+    """Education copied from the confirmed profile."""
+
+    institution: str = Field(..., min_length=1)
+    degree: str = Field(..., min_length=1)
+    field_of_study: str | None = None
+    location: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    description: str | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ResumePublicationEntry(BaseModel):
+    """Publication copied from the confirmed profile."""
+
+    title: str = Field(..., min_length=1)
+    venue: str | None = None
+    publication_date: str | None = None
+    url: str | None = None
+    description: str | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ResumeCertificationEntry(BaseModel):
+    """Certification copied from the confirmed profile."""
+
+    name: str = Field(..., min_length=1)
+    issuing_organization: str | None = None
+    issue_date: str | None = None
+    expiry_date: str | None = None
+    credential_id: str | None = None
+    credential_url: str | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ResumeAchievementEntry(BaseModel):
+    """Achievement copied from the confirmed profile."""
+
+    title: str = Field(..., min_length=1)
+    description: str | None = None
+    date: str | None = None
+
+    model_config = ConfigDict(extra="forbid")
 
 class TailoredResumeDraft(BaseModel):
     """Structured resume output produced before Markdown or PDF rendering."""
@@ -143,9 +225,17 @@ class TailoredResumeDraft(BaseModel):
     profile_id: UUID
     header: ResumeHeader
     target_title: str = Field(..., min_length=1)
+    verified_summary: str | None = None
     professional_summary: list[GroundedResumeStatement] = Field(min_length=1)
     sections: list[TailoredResumeSection] = Field(default_factory=list)
     skills: list[GroundedResumeStatement] = Field(default_factory=list)
+    skill_groups: list[ResumeSkillGroup] = Field(default_factory=list)
+    experiences: list[ResumeExperienceEntry] = Field(default_factory=list)
+    projects: list[ResumeProjectEntry] = Field(default_factory=list)
+    education: list[ResumeEducationEntry] = Field(default_factory=list)
+    publications: list[ResumePublicationEntry] = Field(default_factory=list)
+    certifications: list[ResumeCertificationEntry] = Field(default_factory=list)
+    achievements: list[ResumeAchievementEntry] = Field(default_factory=list)
     evidence_catalog: list[SelectedResumeEvidence] = Field(min_length=1)
     generator_provider: str = Field(..., min_length=1)
     generator_model: str = Field(..., min_length=1)

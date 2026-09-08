@@ -1,8 +1,6 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 import pytest
-from pydantic import ValidationError
-
 from app.models.candidate_profile import (
     CandidateAchievement,
     CandidateCertification,
@@ -25,6 +23,7 @@ from app.schemas.candidate_profile import (
     CandidatePublicationCreate,
     CandidateSkillCreate,
 )
+from pydantic import ValidationError
 
 
 def test_valid_candidate_profile_create() -> None:
@@ -199,8 +198,8 @@ def test_candidate_profile_read_can_be_constructed_from_orm_objects() -> None:
         professional_summary="Experienced platform engineer.",
     )
     profile.id = "123e4567-e89b-12d3-a456-426614174000"
-    profile.created_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
-    profile.updated_at = datetime(2024, 1, 2, tzinfo=timezone.utc)
+    profile.created_at = datetime(2024, 1, 1, tzinfo=UTC)
+    profile.updated_at = datetime(2024, 1, 2, tzinfo=UTC)
 
     read = CandidateProfileRead.model_validate(profile)
 
@@ -215,8 +214,8 @@ def test_nested_candidate_profile_read_contains_all_collections() -> None:
         professional_summary="Experienced engineer.",
     )
     profile.id = "123e4567-e89b-12d3-a456-426614174000"
-    profile.created_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
-    profile.updated_at = datetime(2024, 1, 2, tzinfo=timezone.utc)
+    profile.created_at = datetime(2024, 1, 1, tzinfo=UTC)
+    profile.updated_at = datetime(2024, 1, 2, tzinfo=UTC)
     profile.experiences = [
         CandidateExperience(
             id="123e4567-e89b-12d3-a456-426614174001",

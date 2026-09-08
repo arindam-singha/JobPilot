@@ -13,7 +13,7 @@ from app.schemas.tailored_resume import (
     TailoredResumeContent,
 )
 
-SYSTEM_PROMPT = SYSTEM_PROMPT = """
+SYSTEM_PROMPT = """
 You tailor resume wording using verified candidate evidence.
 
 Rules:
@@ -98,7 +98,8 @@ class OllamaResumeGenerationProvider:
             ],
             "format": schema,
             "stream": False,
-            "options": {"temperature": 0},
+            "options": {"temperature": 0,
+                        "num_ctx": 8192,},
         }
         headers = {"Content-Type": "application/json"}
         if self._api_key:

@@ -22,7 +22,6 @@ from app.services.llm_evidence_extraction_service import (
     LlmEvidenceProviderFailureError,
 )
 
-
 router = APIRouter(
     prefix="/api/v1/candidate-profile",
     tags=["llm-evidence-generation"],

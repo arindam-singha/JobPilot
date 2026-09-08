@@ -3,7 +3,6 @@ from __future__ import annotations
 from uuid import UUID, uuid4
 
 import pytest
-
 from app.llm.resume_provider import (
     ResumeGenerationProviderError,
 )

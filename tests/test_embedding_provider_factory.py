@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from app.embeddings.embedding_provider_factory import (
     EmbeddingProviderConfigurationError,
     create_embedding_provider,

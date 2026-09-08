@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 
 import pytest
-from sqlalchemy import select
-
 from app.models.candidate_evidence import CandidateEvidence
 from app.schemas.candidate_document import CandidateDocumentCreate
 from app.schemas.candidate_profile import CandidateProfileCreate
@@ -17,6 +15,7 @@ from app.services.evidence_extraction_service import (
     EvidenceExtractionDocumentNotFoundError,
     EvidenceExtractionDocumentNotReadyError,
 )
+from sqlalchemy import select
 
 
 async def _create_profile(database_session, name: str = "Test Candidate"):

@@ -3,8 +3,6 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import func, select
-
 from app.models.candidate_document import CandidateDocument
 from app.models.candidate_evidence import CandidateEvidence
 from app.schemas.candidate_document import CandidateDocumentCreate
@@ -17,6 +15,7 @@ from app.services.evidence_extraction_service import (
     EvidenceExtractionEmptyTextError,
     EvidenceExtractionService,
 )
+from sqlalchemy import func, select
 
 
 async def _create_profile(

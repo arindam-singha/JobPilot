@@ -31,6 +31,7 @@ class ApplicationPackageRead(BaseModel):
     match: HybridJobCandidateMatchRead
     resume: TailoredResumeDraft
     cover_letter: TailoredCoverLetterDraft
+    resume_html: str
     resume_markdown: str
     cover_letter_markdown: str
     resume_pdf_base64: str

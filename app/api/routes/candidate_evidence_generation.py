@@ -16,7 +16,6 @@ from app.services.evidence_extraction_service import (
     EvidenceExtractionEmptyTextError,
 )
 
-
 router = APIRouter(
     prefix="/api/v1/candidate-profile",
     tags=["candidate-evidence-generation"],

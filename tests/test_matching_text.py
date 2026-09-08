@@ -4,7 +4,6 @@ import re
 import unicodedata
 from collections.abc import Iterable
 
-
 _TOKEN_PATTERN = re.compile(r"[a-z0-9+#.]+")
 
 

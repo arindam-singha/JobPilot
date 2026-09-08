@@ -4,8 +4,6 @@ import json
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import select
-
 from app.cv.models import TextChunk
 from app.llm.evidence_provider import EvidenceExtractionProviderError
 from app.models.candidate_evidence import CandidateEvidence
@@ -14,6 +12,7 @@ from app.schemas.candidate_profile import CandidateProfileCreate
 from app.services.candidate_document_service import CandidateDocumentService
 from app.services.candidate_profile_service import CandidateProfileService
 from app.services.llm_evidence_extraction_service import LLM_SOURCE_TYPE
+from sqlalchemy import select
 
 
 async def _create_profile(

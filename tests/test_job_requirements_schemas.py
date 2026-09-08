@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import pytest
-from pydantic import ValidationError
-
 from app.schemas.job_requirements import (
     JobRequirementsCreate,
     JobRequirementsData,
 )
+from pydantic import ValidationError
 
 
 def test_job_requirements_data_accepts_valid_values() -> None:

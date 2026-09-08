@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+
 async def test_ingest_linkedin_job(async_client) -> None:
     payload = {
         "job_url": "https://www.linkedin.com/jobs/view/123456789",

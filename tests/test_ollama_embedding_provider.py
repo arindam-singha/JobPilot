@@ -4,7 +4,6 @@ import json
 
 import httpx
 import pytest
-
 from app.embeddings.embedding_provider import EmbeddingProviderError
 from app.embeddings.ollama_embedding_provider import (
     OllamaEmbeddingProvider,

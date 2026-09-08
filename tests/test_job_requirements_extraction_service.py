@@ -3,8 +3,6 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import select
-
 from app.llm.fake_job_requirements_provider import (
     FakeJobRequirementsProvider,
 )
@@ -16,6 +14,7 @@ from app.services.job_requirements_extraction_service import (
     JobRequirementsJobNotFoundError,
     JobRequirementsProviderFailureError,
 )
+from sqlalchemy import select
 
 
 async def _create_job(

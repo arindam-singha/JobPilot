@@ -3,7 +3,6 @@ from __future__ import annotations
 import math
 
 import pytest
-
 from app.embeddings.fake_embedding_provider import FakeEmbeddingProvider
 
 

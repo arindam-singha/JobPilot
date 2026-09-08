@@ -10,6 +10,8 @@ from app.schemas.tailored_resume import (
     SelectedResumeEvidence,
     TailoredResumeDraft,
     TailoredResumeSection,
+    ResumeExperienceEntry,
+    ResumeSkillGroup,
 )
 from app.services.tailored_resume_markdown_renderer import (
     TailoredResumeMarkdownRenderer,
@@ -58,6 +60,10 @@ def _draft() -> TailoredResumeDraft:
             github_url=("https://github.com/candidate"),
         ),
         target_title=("Senior Computer Vision Engineer"),
+        verified_summary=(
+            "Computer vision engineer with "
+            "manufacturing inspection experience."
+        ),
         professional_summary=[
             GroundedResumeStatement(
                 text=("Computer vision engineer with " "manufacturing inspection experience."),
@@ -81,6 +87,26 @@ def _draft() -> TailoredResumeDraft:
                 ],
             )
         ],
+        skill_groups=[
+            ResumeSkillGroup(
+                category="Technical Skills",
+                skills=["Python", "PyTorch", "FastAPI"],
+            )
+        ],
+        experiences=[
+            ResumeExperienceEntry(
+                role="Computer Vision Engineer",
+                company="Example Company",
+                location="Abu Dhabi",
+                start_date="2022-01-01",
+                end_date=None,
+                is_current=True,
+                bullets=[
+                    "Reduced inspection time from "
+                    "10 minutes to 5 seconds."
+                ],
+            )
+        ],
         evidence_catalog=[evidence],
         generator_provider="ollama",
         generator_model="qwen2.5:7b",
@@ -93,7 +119,7 @@ def test_renderer_produces_expected_sections() -> None:
     assert "# Test Candidate" in markdown
     assert "Senior Computer Vision Engineer" in markdown
     assert "## Professional Summary" in markdown
-    assert "## Skills" in markdown
+    assert "## Core Skills" in markdown
     assert "## Professional Experience" in markdown
 
 
@@ -110,8 +136,12 @@ def test_renderer_includes_contact_information() -> None:
 def test_renderer_uses_simple_bullets() -> None:
     markdown = TailoredResumeMarkdownRenderer().render(_draft())
 
-    assert "- Computer vision engineer with " "manufacturing inspection experience." in markdown
-
+    # assert "- Computer vision engineer with " "manufacturing inspection experience." in markdown
+    assert (
+        "Computer vision engineer with "
+        "manufacturing inspection experience."
+        in markdown
+    )
     assert "- Reduced inspection time from " "10 minutes to 5 seconds." in markdown
 
 
@@ -149,7 +179,8 @@ def test_renderer_ends_with_single_newline() -> None:
 def test_renderer_escapes_markdown_characters() -> None:
     draft = _draft()
 
-    draft.professional_summary[0].text = "Built *production* [AI] systems."
+    # draft.professional_summary[0].text = "Built *production* [AI] systems."
+    draft.verified_summary = "Built *production* [AI] systems."
 
     markdown = TailoredResumeMarkdownRenderer().render(draft)
 
@@ -159,7 +190,10 @@ def test_renderer_escapes_markdown_characters() -> None:
 def test_renderer_normalizes_whitespace() -> None:
     draft = _draft()
 
-    draft.professional_summary[0].text = "Built   production\ninspection\t systems."
+    # draft.professional_summary[0].text = "Built   production\ninspection\t systems."
+    draft.verified_summary = (
+    "Built   production\ninspection\t systems."
+    )
 
     markdown = TailoredResumeMarkdownRenderer().render(draft)
 

@@ -3,13 +3,12 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import select
-
 from app.models.candidate_evidence import CandidateEvidence
 from app.schemas.candidate_document import CandidateDocumentCreate
 from app.schemas.candidate_profile import CandidateProfileCreate
 from app.services.candidate_document_service import CandidateDocumentService
 from app.services.candidate_profile_service import CandidateProfileService
+from sqlalchemy import select
 
 
 async def _create_profile(

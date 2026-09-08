@@ -3,10 +3,9 @@ from __future__ import annotations
 from io import BytesIO
 
 import pytest
+from app.cv.extraction import DOCXTextExtractor, PDFTextExtractor, extract_document_text
 from docx import Document
 from pypdf import PdfWriter
-
-from app.cv.extraction import DOCXTextExtractor, PDFTextExtractor, extract_document_text
 
 
 @pytest.fixture

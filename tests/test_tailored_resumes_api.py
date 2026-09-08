@@ -4,7 +4,6 @@ from io import BytesIO
 from uuid import uuid4
 
 import pytest
-from pypdf import PdfReader
 from app.embeddings.embedding_provider_factory import (
     EmbeddingProviderConfigurationError,
 )
@@ -36,6 +35,7 @@ from app.services.tailored_resume_generation_service import (
 from app.services.tailored_resume_grounding_service import (
     TailoredResumeEvidenceNotFoundError,
 )
+from pypdf import PdfReader
 
 
 class StubGenerationService:
@@ -142,6 +142,10 @@ def _draft(
             linkedin_url=("https://linkedin.com/in/candidate"),
         ),
         target_title=target_title,
+        verified_summary=(
+            "Computer vision engineer experienced "
+            "in manufacturing inspection."
+        ),
         professional_summary=[
             GroundedResumeStatement(
                 text=("Computer vision engineer experienced " "in manufacturing inspection."),

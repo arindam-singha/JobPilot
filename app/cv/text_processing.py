@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
 import textwrap
-from app.cv.models import Section, TextChunk
+from collections.abc import Sequence
 
+from app.cv.models import Section, TextChunk
 
 DEFAULT_MAX_CHUNK_CHARACTERS = 2000
 DEFAULT_CHUNK_OVERLAP_CHARACTERS = 200
@@ -40,6 +40,7 @@ _SECTION_HEADINGS: dict[str, str] = {
     "publications": "publications",
     "research publications": "publications",
     "selected publications": "publications",
+    "research papers": "publications",
     "certifications": "certifications",
     "certificates": "certifications",
     "achievements": "achievements",

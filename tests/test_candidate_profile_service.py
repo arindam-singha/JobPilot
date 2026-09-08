@@ -2,16 +2,8 @@ from datetime import date
 from uuid import uuid4
 
 import pytest
-
 from app.models.candidate_profile import (
-    CandidateAchievement,
-    CandidateCertification,
-    CandidateEducation,
     CandidateExperience,
-    CandidateProfile,
-    CandidateProject,
-    CandidatePublication,
-    CandidateSkill,
 )
 from app.schemas.candidate_profile import (
     CandidateAchievementCreate,
@@ -30,10 +22,10 @@ from app.services.candidate_profile_service import (
     CandidateEducationNotFoundError,
     CandidateExperienceNotFoundError,
     CandidateProfileNotFoundError,
+    CandidateProfileService,
     CandidateProjectNotFoundError,
     CandidatePublicationNotFoundError,
     CandidateSkillNotFoundError,
-    CandidateProfileService,
 )
 
 

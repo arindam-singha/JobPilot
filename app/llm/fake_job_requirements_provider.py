@@ -4,7 +4,6 @@ from collections.abc import Callable
 
 from app.schemas.job_requirements import JobRequirementsData
 
-
 FakeJobRequirementsResponder = Callable[
     [str, str, str | None, str],
     JobRequirementsData,

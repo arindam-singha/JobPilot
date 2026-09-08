@@ -11,6 +11,8 @@ from app.schemas.tailored_resume import (
     SelectedResumeEvidence,
     TailoredResumeDraft,
     TailoredResumeSection,
+    ResumeExperienceEntry,
+    ResumeSkillGroup,
 )
 from app.services.tailored_resume_pdf_renderer import (
     TailoredResumePdfRenderer,
@@ -71,6 +73,10 @@ def _draft(
             github_url=("https://github.com/candidate"),
         ),
         target_title=("Senior Computer Vision Engineer"),
+        verified_summary=(
+            "Computer vision engineer with "
+            "manufacturing inspection experience."
+        ),
         professional_summary=[
             GroundedResumeStatement(
                 text=("Computer vision engineer with " "manufacturing inspection experience."),
@@ -87,6 +93,26 @@ def _draft(
             TailoredResumeSection(
                 heading="Professional Experience",
                 statements=statements,
+            )
+        ],
+        skill_groups=[
+            ResumeSkillGroup(
+                category="Technical Skills",
+                skills=["Python", "PyTorch", "FastAPI"],
+            )
+        ],
+        experiences=[
+            ResumeExperienceEntry(
+                role="Computer Vision Engineer",
+                company="Example Company",
+                location="Abu Dhabi",
+                start_date="2022-01-01",
+                end_date=None,
+                is_current=True,
+                bullets=[
+                    statement.text
+                    for statement in statements
+                ],
             )
         ],
         evidence_catalog=[evidence],
@@ -117,7 +143,7 @@ def test_pdf_contains_expected_candidate_text() -> None:
     assert "Test Candidate" in text
     assert "Senior Computer Vision Engineer" in text
     assert "PROFESSIONAL SUMMARY" in text
-    assert "SKILLS" in text
+    assert "CORE SKILLS" in text
     assert "PROFESSIONAL EXPERIENCE" in text
 
 

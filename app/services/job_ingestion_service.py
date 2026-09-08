@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.job import JobCreate, JobIngestRequest, JobRead
 from app.services.job_service import JobService
 
-
 logger = logging.getLogger(__name__)
 
 

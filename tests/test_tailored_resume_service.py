@@ -3,8 +3,6 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import func, select
-
 from app.models.candidate_profile import CandidateProfile
 from app.models.job import Job
 from app.models.tailored_resume import TailoredResume
@@ -19,6 +17,7 @@ from app.services.tailored_resume_service import (
     TailoredResumeNotFoundError,
     TailoredResumeService,
 )
+from sqlalchemy import func, select
 
 
 class StubGenerationService:

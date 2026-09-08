@@ -4,7 +4,6 @@ import json
 import math
 
 import httpx
-
 from app.embeddings.embedding_provider import (
     EmbeddingProviderError,
 )

@@ -15,7 +15,6 @@ from app.services.job_candidate_matching_service import (
     MatchingRequirementsNotFoundError,
 )
 
-
 router = APIRouter(
     prefix="/api/v1/jobs",
     tags=["job-candidate-matching"],

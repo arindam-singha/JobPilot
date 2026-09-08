@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from app.models.job_requirements import JobRequirements
 from app.db.base import Base
@@ -41,7 +41,7 @@ class Job(Base):
         nullable=False,
     )
 
-    requirements: Mapped["JobRequirements | None"] = relationship(
+    requirements: Mapped[JobRequirements | None] = relationship(
     back_populates="job",
     cascade="all, delete-orphan",
     passive_deletes=True,

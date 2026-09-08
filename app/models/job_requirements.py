@@ -111,6 +111,6 @@ class JobRequirements(Base):
         nullable=False,
     )
 
-    job: Mapped["Job"] = relationship(
+    job: Mapped[Job] = relationship(
         back_populates="requirements",
     )

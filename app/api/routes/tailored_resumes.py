@@ -4,7 +4,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import PlainTextResponse, Response
+from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
@@ -43,6 +43,10 @@ from app.services.tailored_resume_grounding_service import (
     TailoredResumeEvidenceIntegrityError,
     TailoredResumeEvidenceNotFoundError,
 )
+from app.services.tailored_resume_html_renderer import (
+    TailoredResumeHtmlRenderer,
+    TailoredResumeHtmlRenderingError,
+)
 from app.services.tailored_resume_markdown_renderer import (
     TailoredResumeMarkdownRenderer,
     TailoredResumeMarkdownRenderingError,
@@ -55,7 +59,6 @@ from app.services.tailored_resume_service import (
     TailoredResumeNotFoundError,
     TailoredResumeService,
 )
-
 
 router = APIRouter(prefix="/api/v1/jobs", tags=["tailored-resumes"])
 
@@ -237,6 +240,57 @@ async def get_tailored_resume_markdown(
         ) from exc
 
     return PlainTextResponse(content=markdown, media_type="text/markdown")
+
+
+@router.get(
+    "/{job_id}/tailored-resumes/{profile_id}/{resume_id}/html",
+    response_class=HTMLResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_tailored_resume_html(
+    job_id: UUID,
+    profile_id: UUID,
+    resume_id: UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> HTMLResponse:
+    """Render a persisted tailored resume as ATS-friendly HTML."""
+
+    try:
+        record = await TailoredResumeService(db).get_resume(
+            resume_id=resume_id,
+            job_id=job_id,
+            profile_id=profile_id,
+        )
+    except TailoredResumeNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tailored resume not found",
+        ) from exc
+
+    try:
+        rendered_html = TailoredResumeHtmlRenderer().render(
+            record.structured_content
+        )
+    except TailoredResumeHtmlRenderingError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Tailored resume HTML could not be rendered",
+        ) from exc
+
+    return HTMLResponse(
+        content=rendered_html,
+        headers={
+            "Content-Security-Policy": (
+                "default-src 'none'; "
+                "style-src 'unsafe-inline'; "
+                "script-src 'unsafe-inline'; "
+                "img-src data:; "
+                "base-uri 'none'; "
+                "form-action 'none'"
+            ),
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @router.get(

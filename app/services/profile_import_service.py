@@ -325,7 +325,8 @@ Rules:
                 "options": {
                     "temperature": 0,
                     "num_ctx": 8192,
-                    "num_predict": 1400,
+                    "num_predict": 6000 if destination == "skills" else 1400,
+                    # "num_predict": 1400,
                 },
             }
 
@@ -442,15 +443,30 @@ Rules:
                     exc.response.status_code,
                 )
 
+            # except (httpx.RequestError, ValueError, KeyError, TypeError) as exc:
+            #     result.warnings.append(
+            #         f"{destination}: response failed "
+            #         f"({type(exc).__name__}). Other sections were retained."
+            #     )
+            #     logger.warning(
+            #         "Profile import response failure: section=%s error_type=%s",
+            #         destination,
+            #         type(exc).__name__,
+            #     )
+
             except (httpx.RequestError, ValueError, KeyError, TypeError) as exc:
+                message = str(exc).strip() or type(exc).__name__
+
                 result.warnings.append(
-                    f"{destination}: response failed "
-                    f"({type(exc).__name__}). Other sections were retained."
+                    f"{destination}: response failed ({message}). "
+                    "Other sections were retained."
                 )
                 logger.warning(
-                    "Profile import response failure: section=%s error_type=%s",
+                    "Profile import response failure: section=%s "
+                    "error_type=%s error=%s",
                     destination,
                     type(exc).__name__,
+                    message,
                 )
 
         if not successful_sections:

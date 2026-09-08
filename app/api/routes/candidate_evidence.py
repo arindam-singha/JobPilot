@@ -15,7 +15,6 @@ from app.services.candidate_evidence_service import (
 )
 from app.services.candidate_profile_service import CandidateProfileNotFoundError
 
-
 router = APIRouter(prefix="/api/v1/candidate-profile", tags=["candidate-evidence"])
 
 

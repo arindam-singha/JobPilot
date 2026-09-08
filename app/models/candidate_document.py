@@ -56,4 +56,4 @@ class CandidateDocument(Base):
         nullable=False,
     )
 
-    profile: Mapped["CandidateProfile"] = relationship(back_populates="documents")
+    profile: Mapped[CandidateProfile] = relationship(back_populates="documents")

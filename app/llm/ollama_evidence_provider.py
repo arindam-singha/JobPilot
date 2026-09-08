@@ -9,7 +9,6 @@ from app.cv.models import TextChunk
 from app.llm.evidence_provider import EvidenceExtractionProviderError
 from app.schemas.llm_evidence import LlmChunkExtractionResult
 
-
 SYSTEM_PROMPT = """
 You extract factual candidate evidence from CV or resume text.
 
@@ -101,6 +100,7 @@ class OllamaEvidenceExtractionProvider:
             "stream": False,
             "options": {
                 "temperature": 0,
+                "num_ctx": 8192,
             },
         }
 

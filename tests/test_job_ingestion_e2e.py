@@ -33,9 +33,8 @@ async def test_job_ingestion_end_to_end(async_client, database_session) -> None:
     # 2. Verify that the job was actually persisted in PostgreSQL.
     from uuid import UUID
 
-    from sqlalchemy import select
-
     from app.models.job import Job
+    from sqlalchemy import select
 
     result = await database_session.execute(
         select(Job).where(Job.id == UUID(job_id))

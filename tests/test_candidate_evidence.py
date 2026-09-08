@@ -1,11 +1,7 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
-from pydantic import ValidationError
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
-
 from app.models.candidate_evidence import CandidateEvidence
 from app.models.candidate_profile import CandidateProfile
 from app.schemas.candidate_evidence import (
@@ -22,6 +18,9 @@ from app.services.candidate_profile_service import (
     CandidateProfileNotFoundError,
     CandidateProfileService,
 )
+from pydantic import ValidationError
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 
 def evidence_payload(**overrides):
@@ -65,8 +64,8 @@ def test_evidence_read_represents_orm_object() -> None:
         title="Python",
         content="Advanced Python",
         source_type="profile",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
     read = CandidateEvidenceRead.model_validate(evidence)
     assert read.id == evidence.id

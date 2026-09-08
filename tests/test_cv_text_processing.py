@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from app.cv.models import Section, TextChunk
 from app.cv.text_processing import (
     build_chunks,

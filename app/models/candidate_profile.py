@@ -7,12 +7,11 @@ from uuid import UUID, uuid4
 from sqlalchemy import Date, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.models.candidate_evidence import CandidateEvidence
 
 from app.db.base import Base
+from app.models.candidate_evidence import CandidateEvidence
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
 
     from app.models.candidate_document import CandidateDocument
 
@@ -84,12 +83,12 @@ class CandidateProfile(Base):
         cascade="all, delete-orphan",
         order_by="CandidateAchievement.id",
     )
-    documents: Mapped[list["CandidateDocument"]] = relationship(
+    documents: Mapped[list[CandidateDocument]] = relationship(
         back_populates="profile",
         cascade="all, delete-orphan",
         order_by="CandidateDocument.id",
     )
-    evidence: Mapped[list["CandidateEvidence"]] = relationship(
+    evidence: Mapped[list[CandidateEvidence]] = relationship(
     back_populates="profile",
     cascade="all, delete-orphan",
     order_by="CandidateEvidence.id",

@@ -4,13 +4,12 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-from pgvector.sqlalchemy import Vector
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
 
 if TYPE_CHECKING:
     from app.models.candidate_profile import CandidateProfile
@@ -96,7 +95,7 @@ class CandidateEvidence(Base):
         nullable=False,
     )
 
-    profile: Mapped["CandidateProfile"] = relationship(
+    profile: Mapped[CandidateProfile] = relationship(
         back_populates="evidence",
     )
 

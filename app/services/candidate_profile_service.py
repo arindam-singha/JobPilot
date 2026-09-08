@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import profile
 from uuid import UUID
 
 from sqlalchemy import select

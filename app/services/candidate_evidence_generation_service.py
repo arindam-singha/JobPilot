@@ -10,7 +10,6 @@ from app.cv.models import TextChunk
 from app.models.candidate_evidence import CandidateEvidence
 from app.services.evidence_extraction_service import EvidenceExtractionService
 
-
 SECTION_EVIDENCE_TYPE_MAP: dict[str | None, str] = {
     None: "general",
     "summary": "summary",

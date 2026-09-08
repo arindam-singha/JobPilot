@@ -4,7 +4,6 @@ import json
 
 import httpx
 import pytest
-
 from app.llm.job_requirements_provider import (
     JobRequirementsProviderError,
 )

@@ -360,12 +360,25 @@ def _results() -> None:
     )
     with resume_tab:
         st.markdown(package["resume_markdown"])
+
         st.download_button(
             "Download resume PDF",
             base64.b64decode(package["resume_pdf_base64"]),
             file_name="tailored-resume.pdf",
             mime="application/pdf",
         )
+
+        resume_html = package.get("resume_html")
+
+        if resume_html:
+            st.download_button(
+                "Download resume as HTML",
+                data=resume_html,
+                file_name="tailored-resume.html",
+                mime="text/html",
+                use_container_width=True,
+            )
+
         st.download_button(
             "Download resume Markdown",
             package["resume_markdown"],

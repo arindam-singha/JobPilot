@@ -15,7 +15,6 @@ from app.services.evidence_extraction_service import (
     EvidenceExtractionService,
 )
 
-
 LLM_SOURCE_TYPE = "candidate_document_llm"
 
 

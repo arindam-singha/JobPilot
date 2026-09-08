@@ -4,7 +4,6 @@ import math
 from uuid import uuid4
 
 import pytest
-
 from app.models.candidate_evidence import CandidateEvidence
 from app.models.candidate_profile import CandidateProfile
 from app.models.job import Job
@@ -13,7 +12,6 @@ from app.services.hybrid_job_candidate_matching_service import (
     HybridEmbeddedEvidenceNotFoundError,
     HybridJobCandidateMatchingService,
 )
-
 
 DIMENSIONS = 768
 

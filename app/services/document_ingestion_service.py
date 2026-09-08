@@ -4,12 +4,11 @@ from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.cv.extraction import ExtractedText, extract_document_text
+from app.cv.extraction import extract_document_text
 from app.models.candidate_document import CandidateDocument
 from app.models.candidate_profile import CandidateProfile
-from app.schemas.candidate_document import CandidateDocumentCreate, CandidateDocumentUpdate
+from app.schemas.candidate_document import CandidateDocumentCreate
 from app.services.candidate_document_service import (
-    CandidateDocumentError,
     CandidateDocumentService,
 )
 from app.services.document_storage_service import (

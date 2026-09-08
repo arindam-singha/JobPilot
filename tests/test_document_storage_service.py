@@ -1,11 +1,10 @@
 from uuid import uuid4
 
 import pytest
-
 from app.services.document_storage_service import (
     DocumentStorageNotFoundError,
-    DocumentStorageTypeError,
     DocumentStorageService,
+    DocumentStorageTypeError,
 )
 
 

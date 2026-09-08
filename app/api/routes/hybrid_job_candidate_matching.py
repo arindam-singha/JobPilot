@@ -27,7 +27,6 @@ from app.services.semantic_evidence_retrieval_service import (
     SemanticEvidenceProviderFailureError,
 )
 
-
 router = APIRouter(
     prefix="/api/v1/jobs",
     tags=["hybrid-job-candidate-matching"],
