@@ -38,6 +38,7 @@ from app.api.routes.llm_evidence_generation import (
 from app.api.routes.tailored_resumes import (
     router as tailored_resumes_router,
 )
+from app.api.routes import job_applications
 
 logging.basicConfig(
     level=logging.INFO,
@@ -64,7 +65,7 @@ app.include_router(job_candidate_matching_router)
 app.include_router(hybrid_job_candidate_matching_router)
 app.include_router(tailored_resumes_router)
 app.include_router(application_packages_router)
-
+app.include_router(job_applications.router)
 
 @app.get("/")
 async def root() -> dict[str, str]:

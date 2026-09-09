@@ -333,7 +333,8 @@ def _application() -> None:
                         "location": location or None,
                     },
                 )
-                st.write("Validating and rendering both documents")
+                st.write("Generating the LLM skill-gap preparation report")
+                st.write("Validating and rendering all documents")
                 st.session_state.application_package = package
                 status_box.update(label="Application package ready", state="complete")
         except RuntimeError as exc:
@@ -355,8 +356,8 @@ def _results() -> None:
     middle.metric("Matched", matched)
     right.metric("Missing", missing)
 
-    resume_tab, letter_tab, match_tab, provenance_tab = st.tabs(
-        ["Resume", "Cover letter", "Match", "Provenance"]
+    resume_tab, letter_tab, gap_tab, match_tab, provenance_tab = st.tabs(
+        ["Resume", "Cover letter", "Skill-gap report", "Match", "Provenance"]
     )
     with resume_tab:
         st.markdown(package["resume_markdown"])
@@ -399,6 +400,26 @@ def _results() -> None:
             file_name="cover-letter.md",
             mime="text/markdown",
         )
+    with gap_tab:
+        st.markdown(package["skill_gap_markdown"])
+        st.download_button(
+            "Download skill-gap report PDF",
+            base64.b64decode(package["skill_gap_pdf_base64"]),
+            file_name="skill-gap-preparation-report.pdf",
+            mime="application/pdf",
+        )
+        st.download_button(
+            "Download skill-gap report HTML",
+            package["skill_gap_html"],
+            file_name="skill-gap-preparation-report.html",
+            mime="text/html",
+        )
+        st.download_button(
+            "Download skill-gap report Markdown",
+            package["skill_gap_markdown"],
+            file_name="skill-gap-preparation-report.md",
+            mime="text/markdown",
+        )
     with match_tab:
         st.markdown("#### Matched requirements")
         st.write(package["match"]["matched_requirements"] or "None")
@@ -411,14 +432,206 @@ def _results() -> None:
         st.json(package["resume"]["evidence_catalog"])
         st.markdown("#### Cover-letter evidence")
         st.json(package["cover_letter"]["evidence_catalog"])
+        st.markdown("---")
+        st.subheader("4. Save application")
+
+        application_status = st.selectbox(
+            "Application status",
+            options=[
+                "ready_to_apply",
+                "applied",
+                "screening",
+                "interview",
+                "offer",
+                "rejected",
+                "withdrawn",
+            ],
+            index=1,
+            key="generated_application_status",
+        )
+
+        application_notes = st.text_area(
+            "Application notes",
+            value="Resume and cover letter reviewed and exported.",
+            key="generated_application_notes",
+        )
+
+        if st.button(
+            "Save application status",
+            type="primary",
+            use_container_width=True,
+        ):
+            try:
+                profile_id = package["resume"]["profile_id"]
+                job_id = package["job"]["id"]
+
+                existing_applications = _request(
+                    "GET",
+                    "/api/v1/applications",
+                    params={"profile_id": profile_id},
+                )
+
+                existing = next(
+                    (item for item in existing_applications if item["job_id"] == job_id),
+                    None,
+                )
+
+                payload = {
+                    "status": application_status,
+                    "resume_snapshot": package["resume"],
+                    "cover_letter_snapshot": package["cover_letter"],
+                    "application_url": package["job"]["job_url"],
+                    "notes": application_notes or None,
+                }
+
+                if existing:
+                    saved = _request(
+                        "PATCH",
+                        f"/api/v1/applications/{existing['id']}",
+                        json=payload,
+                    )
+                else:
+                    payload.update(
+                        {
+                            "job_id": job_id,
+                            "profile_id": profile_id,
+                        }
+                    )
+                    saved = _request(
+                        "POST",
+                        "/api/v1/applications",
+                        json=payload,
+                    )
+
+                st.session_state["saved_application_id"] = saved["id"]
+                st.success(f"Application saved with status: {saved['status']}")
+            except RuntimeError as exc:
+                st.error(str(exc))
+
+
+def _application_tracker() -> None:
+    st.subheader("Application tracking")
+
+    profile_id = st.session_state.get("profile_id")
+    if not profile_id:
+        st.warning("Select a candidate profile first.")
+        return
+
+    try:
+        applications = _request(
+            "GET",
+            "/api/v1/applications",
+            params={"profile_id": profile_id},
+        )
+    except RuntimeError as exc:
+        st.error(str(exc))
+        return
+
+    if not applications:
+        st.info("No tracked applications found.")
+        return
+
+    rows = []
+
+    for application in applications:
+        try:
+            job = _request(
+                "GET",
+                f"/api/v1/jobs/{application['job_id']}",
+            )
+        except RuntimeError:
+            job = {
+                "title": "Unknown",
+                "company": "Unknown",
+                "job_url": application.get("application_url"),
+            }
+
+        rows.append(
+            {
+                "Application ID": application["id"],
+                "Company": job["company"],
+                "Role": job["title"],
+                "Status": application["status"],
+                "Applied at": application.get("applied_at"),
+                "Job URL": (application.get("application_url") or job.get("job_url")),
+            }
+        )
+
+    st.dataframe(
+        rows,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Job URL": st.column_config.LinkColumn("Job URL"),
+        },
+    )
+
+    labels = {
+        row["Application ID"]: (f"{row['Company']} — {row['Role']} " f"({row['Status']})")
+        for row in rows
+    }
+
+    selected_id = st.selectbox(
+        "Select application to update",
+        options=list(labels),
+        format_func=lambda application_id: labels[application_id],
+    )
+
+    selected = next(item for item in applications if item["id"] == selected_id)
+
+    statuses = [
+        "draft",
+        "ready_to_apply",
+        "applied",
+        "screening",
+        "interview",
+        "offer",
+        "rejected",
+        "withdrawn",
+    ]
+
+    with st.form(f"update-application:{selected_id}"):
+        selected_status = st.selectbox(
+            "Status",
+            options=statuses,
+            index=statuses.index(selected["status"]),
+        )
+        selected_notes = st.text_area(
+            "Notes",
+            value=selected.get("notes") or "",
+        )
+        submitted = st.form_submit_button(
+            "Update application",
+            type="primary",
+        )
+
+    if submitted:
+        try:
+            _request(
+                "PATCH",
+                f"/api/v1/applications/{selected_id}",
+                json={
+                    "status": selected_status,
+                    "notes": selected_notes or None,
+                },
+            )
+            st.success("Application updated.")
+            st.rerun()
+        except RuntimeError as exc:
+            st.error(str(exc))
 
 
 st.set_page_config(page_title="JobPilot", page_icon="✈️", layout="wide")
 st.title("JobPilot")
 st.caption("Grounded tailored resumes and cover letters for manual job applications")
 
-setup_tab, application_tab, results_tab = st.tabs(
-    ["Candidate setup", "New application", "Review package"]
+setup_tab, application_tab, results_tab, tracking_tab = st.tabs(
+    [
+        "Candidate setup",
+        "New application",
+        "Review package",
+        "Application tracking",
+    ]
 )
 with setup_tab:
     _profile_setup()
@@ -426,3 +639,5 @@ with application_tab:
     _application()
 with results_tab:
     _results()
+with tracking_tab:
+    _application_tracker()

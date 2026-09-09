@@ -8,6 +8,7 @@ from app.schemas.cover_letter import TailoredCoverLetterDraft
 from app.schemas.hybrid_job_candidate_match import HybridJobCandidateMatchRead
 from app.schemas.job import JobIngestRequest, JobRead
 from app.schemas.job_requirements import JobRequirementsRead
+from app.schemas.skill_gap_report import SkillGapReport
 from app.schemas.tailored_resume import TailoredResumeDraft
 
 
@@ -29,6 +30,7 @@ class ApplicationPackageRead(BaseModel):
     job: JobRead
     requirements: JobRequirementsRead
     match: HybridJobCandidateMatchRead
+    skill_gap_report: SkillGapReport
     resume: TailoredResumeDraft
     cover_letter: TailoredCoverLetterDraft
     resume_html: str
@@ -36,5 +38,8 @@ class ApplicationPackageRead(BaseModel):
     cover_letter_markdown: str
     resume_pdf_base64: str
     cover_letter_pdf_base64: str
+    skill_gap_markdown: str
+    skill_gap_html: str
+    skill_gap_pdf_base64: str
 
     model_config = ConfigDict(extra="forbid")

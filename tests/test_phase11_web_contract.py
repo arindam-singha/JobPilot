@@ -3,9 +3,11 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
+from app.llm.fake_skill_gap_provider import FakeSkillGapGenerationProvider
 from app.main import app
 from app.schemas.application_package import (
     ApplicationPackageCreate,
+    ApplicationPackageRead,
     CandidateProfilePreparationRead,
 )
 
@@ -51,3 +53,11 @@ def test_profile_preparation_requires_nonnegative_counts() -> None:
     )
     assert result.ready is True
     assert result.embedded_records == result.evidence_records
+
+
+def test_application_package_has_llm_skill_gap_fields() -> None:
+    assert hasattr(FakeSkillGapGenerationProvider, "generate_skill_gap_report")
+    fields = ApplicationPackageRead.model_fields
+    assert "skill_gap_report" in fields
+    assert "skill_gap_html" in fields
+    assert "skill_gap_pdf_base64" in fields
