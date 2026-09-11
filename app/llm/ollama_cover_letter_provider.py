@@ -76,7 +76,8 @@ class OllamaCoverLetterGenerationProvider:
             ],
             "format": schema,
             "stream": False,
-            "options": {"temperature": 0},
+            "options": {"temperature": 0,
+                        },
         }
         headers = {"Content-Type": "application/json"}
         if self._api_key:
